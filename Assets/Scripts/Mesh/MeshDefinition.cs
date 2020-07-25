@@ -1,4 +1,5 @@
 ﻿using System;
+
 using UnityEngine;
 
 /// <summary>
@@ -7,10 +8,14 @@ using UnityEngine;
 [Serializable]
 public class MeshDefinition
 {
-    public Vector3[] vertices;
-    public Vector2[] uv;
-    public int[] triangles;
+    public Vector3[] _vertices;
+    public Vector2[] _uv;
+    public int[] _triangles;
 
-    public bool IsValid() => vertices.Length >= 3 && triangles.Length >= 3 && uv.Length >= 3;
+    public bool IsValid() => 
+        _vertices != null && _triangles != null && _uv != null &&
+        _vertices.Length >= 3 && 
+        _triangles.Length >= 3 && _triangles.Length % 3 == 0 &&
+        _uv.Length == _vertices.Length;
 }
 

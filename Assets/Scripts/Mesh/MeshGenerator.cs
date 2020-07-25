@@ -1,4 +1,6 @@
 ﻿using UnityEngine;
+using UnityEditor;
+
 using gg.core.util;
 
 /// <summary>
@@ -26,7 +28,6 @@ public class MeshGenerator : MonoBehaviour
     /// </summary>
     private MeshFilter _meshFilter;
 
-
     /// <summary>
     /// Resolved or generated mesh renderer
     /// </summary>
@@ -37,13 +38,19 @@ public class MeshGenerator : MonoBehaviour
     /// </summary>
     public void Awake()
     {
-        // if the user defined a mesh, update or create it 
-        if (_meshDefinition != null && _meshDefinition.IsValid())
+        // Need a delay call because of Unity-implementation reasons 
+#if UNITY_EDITOR
+        EditorApplication.delayCall += () =>
+#endif
         {
-            CreateMesh();
-        }
-    }
 
+            // if the user defined a mesh, update or create it 
+            if (_meshDefinition != null && _meshDefinition.IsValid())
+            {
+                CreateMesh();
+            }
+        };
+    }
 
     /// <summary>
     /// Create a mesh and all the dependencies (ie components needed to display the mesh)
@@ -68,15 +75,32 @@ public class MeshGenerator : MonoBehaviour
         {
             var polyMaterial = new Material(_meshMaterial);
             polyMaterial.color = _meshColor;
-            _meshRenderer.material = polyMaterial;
+
+            // check if in editor mode or in game mode, we need different materials (and meshes) otherwise we get warnings
+            // from the editor
+            if (Application.isPlaying)
+            {
+                _meshRenderer.material = polyMaterial;
+            }
+            else
+            {
+                _meshRenderer.sharedMaterial = polyMaterial;
+            }
         }
 
         var mesh = new Mesh();
-        _meshFilter.mesh = mesh;
+        
+        if (Application.isPlaying)
+        {     
+            _meshFilter.mesh = mesh;
+        }
+        else
+        {
+            _meshFilter.sharedMesh = mesh;
+        }
 
         UpdateMeshDefinition(mesh, _meshDefinition);
     }
-
 
     /// <summary>
     /// Called if a new mesh definition is available
@@ -85,16 +109,87 @@ public class MeshGenerator : MonoBehaviour
     {
         Contract.Requires(_meshFilter != null && _meshRenderer != null);
 
-        var mesh = _meshFilter.mesh;
+        var mesh = Application.isPlaying ? _meshFilter.mesh : _meshFilter.sharedMesh;
     
         mesh.Clear();
-            
-        if (_meshRenderer.material != null)
+
+        // check if in editor mode or in game mode, we need to assign different materials and meshes otherwise we get warnings
+        // from the editor
+        if (Application.isPlaying)
         {
-            _meshRenderer.material.color = _meshColor;
+            UpdateMaterial(_meshRenderer, _meshMaterial, _meshColor);
+        }
+        else
+        {
+           UpdateSharedMaterial(_meshRenderer, _meshMaterial, _meshColor);
         }
 
         UpdateMeshDefinition(mesh, _meshDefinition);
+    }
+
+    /// <summary>
+    /// Callback from the editor something has changed
+    /// </summary>
+    public void OnValidate()
+    {
+        // Need a delay call because of Unity-implementation reasons 
+#if UNITY_EDITOR
+        EditorApplication.delayCall += () =>
+#endif
+        {
+            // if the user defined a mesh, update or create it 
+            if (_meshDefinition != null && _meshDefinition.IsValid())
+            {
+                if (_meshFilter == null || _meshRenderer == null)
+                {
+                    CreateMesh();
+                }
+                else
+                {
+                    UpdateMesh();
+                }
+            }
+        };
+    }
+
+    private void UpdateMaterial(MeshRenderer meshRenderer, Material meshMaterial, Color meshColor)
+    {
+        // is mesh material different from the current material and is it defined? 
+        if (meshRenderer.material != meshMaterial && meshMaterial != null)
+        {
+            var polyMaterial = new Material(meshMaterial);
+            polyMaterial.color = meshColor;
+            meshRenderer.material = polyMaterial;
+        }
+        // material defined and mesh material is different
+        else if (meshRenderer.material != meshMaterial && meshMaterial == null)
+        {
+            meshRenderer.material = null;
+        }
+        else if (meshRenderer.material == meshMaterial && meshMaterial != null)
+        {
+            meshRenderer.material.color = meshColor;
+        }
+    }
+
+    private void UpdateSharedMaterial(MeshRenderer meshRenderer, Material meshMaterial, Color meshColor)
+    {
+        // is mesh material different from the current material and is it defined? 
+        if (meshRenderer.sharedMaterial != meshMaterial && meshMaterial != null)
+        {
+            var polyMaterial = new Material(meshMaterial);
+            polyMaterial.color = meshColor;
+            meshRenderer.sharedMaterial = polyMaterial;
+        }
+        // material defined and mesh material is different
+        else if (meshRenderer.sharedMaterial != meshMaterial && meshMaterial == null)
+        {
+            meshRenderer.sharedMaterial = null;
+        }
+        else if (meshRenderer.sharedMaterial == meshMaterial && meshMaterial != null)
+        {
+            meshRenderer.sharedMaterial.color = meshColor;
+        }
     }
 
     /// <summary>
@@ -104,9 +199,9 @@ public class MeshGenerator : MonoBehaviour
     /// <param name="definition"></param>
     private void UpdateMeshDefinition(Mesh mesh, MeshDefinition definition)
     {
-        mesh.vertices = definition.vertices;
-        mesh.uv = definition.uv;
-        mesh.triangles = definition.triangles;
+        mesh.vertices = definition._vertices;
+        mesh.uv = definition._uv;
+        mesh.triangles = definition._triangles;
 
         mesh.RecalculateNormals();
         mesh.RecalculateBounds();

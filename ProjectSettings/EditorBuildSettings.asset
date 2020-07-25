@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/1-SimpleTriangle.unity
+    guid: babdabdac7e291b4795c2fda8b83097e
   m_configObjects: {}
