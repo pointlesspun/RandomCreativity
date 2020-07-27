@@ -1,9 +1,20 @@
-﻿using UnityEngine;
+﻿#define REPORT_MESH_GENERATION
+
+#if REPORT_MESH_GENERATION
+using System.Text;
+#endif
+
+using UnityEngine;
+
 
 public class MeshSheetGenerator : MonoBehaviour
 {
+    public const int triangleLength = 3;
+
     public int _width;
     public int _height;
+
+    public Vector3 _offset = Vector3.zero;
 
     public Vector3 _dimension1 = Vector3.right;
     public Vector3 _dimension2 = Vector3.up;
@@ -21,16 +32,22 @@ public class MeshSheetGenerator : MonoBehaviour
 
         if (_generator != null && _width > 0 && _height > 0)
         {
-            CreateSheet(_width, _height, _generator);
+            CreateSheet(_width, _height, _dimension1, _dimension2, _offset, _generator);
         }
     }
 
-    private void CreateSheet(int width, int height, MeshGenerator generator)
+    public void TryCreateSheet(int width, int height, Vector3 dimension1, Vector3 dimension2, Vector3 offset )
     {
-        const int triangleLength = 3;
-        var quadPoints1 = new int[] { 0, width + 2, 1 };
-        var quadPoints2 = new int[] { 0, width + 1, width + 2 };
+        _generator = GetComponent<MeshGenerator>();
 
+        if (_generator != null && width > 0 && height > 0)
+        {
+            CreateSheet(width, height, dimension1, dimension2, offset, _generator);
+        }
+    }
+
+    private static void CreateSheet(int width, int height, Vector3 dimension1, Vector3 dimension2, Vector3 offset , MeshGenerator generator)
+    {
         var vertCount = (width + 1) * (height + 1);
         var triangleCount = width * height * 2 * 3;
 
@@ -40,32 +57,54 @@ public class MeshSheetGenerator : MonoBehaviour
         debugString.AppendLine("VertCount count " + vertCount);
         debugString.AppendLine("Triangle point count " + triangleCount);
 #endif
+
         var definition = new MeshDefinition();
 
         definition._triangles = new int[triangleCount];
         definition._vertices = new Vector3[vertCount];
         definition._uv = new Vector2[vertCount];
 
+
 #if REPORT_MESH_GENERATION
-        debugString.AppendLine("Vertices:\n");
+        CreateVertices(definition, width, height, dimension1, dimension2, offset, debugString);
+        CreateTriangles(definition, width, height, debugString);
+#else
+        CreateVertices(definition, width, height, dimension1, dimension2, offset);
+        CreateTriangles(definition, width, height);
+#endif
+        generator._meshDefinition = definition;
+
+        generator.CreateMesh();
+    }
+
+    private static void CreateVertices(MeshDefinition definition, int width, int height, Vector3 dimension1, Vector3 dimension2, Vector3 offset, StringBuilder report = null)
+    {
+#if REPORT_MESH_GENERATION
+        report.AppendLine("Vertices:\n");
 #endif
 
         for (int y = 0; y <= height; y++)
-        { 
+        {
             for (int x = 0; x <= width; x++)
             {
-                var index = x + y * (width+1);
+                var index = x + y * (width + 1);
 
-                var v = _dimension1 * x + _dimension2 * y;
-
-                definition._vertices[index] = v;
-                definition._uv[index] = new Vector2(x, y);
+                definition._vertices[index] = dimension1 * x + dimension2 * y + offset;
+                definition._uv[index] = new Vector2(dimension1.normalized.magnitude * x, dimension2.normalized.magnitude * y);
 
 #if REPORT_MESH_GENERATION
-                debugString.AppendLine("vertex " + index + " = " + definition._vertices[index]);
+                report.AppendLine("vertex " + index + " = " + definition._vertices[index]);
+                report.AppendLine("uv " + index + " = " + definition._uv[index]);
 #endif
             }
         }
+    }
+
+
+    private static void CreateTriangles(MeshDefinition definition, int width, int height, StringBuilder report = null )
+    {
+        var quadPoints1 = new int[] { 0, width + 2, 1 };
+        var quadPoints2 = new int[] { 0, width + 1, width + 2 };
 
 #if REPORT_MESH_GENERATION
         var triangle1Debug = new StringBuilder();
@@ -91,25 +130,22 @@ public class MeshSheetGenerator : MonoBehaviour
                     triangle2Debug.Append(definition._triangles[index + triangleLength] + ",");
                 }
 
-                debugString.AppendLine("triangle #1 of quad " + quad + " == " + triangle1Debug);
-                debugString.AppendLine("triangle #2 of quad " + quad + " == " + triangle2Debug);
+                report.AppendLine("triangle #1 of quad " + quad + " == " + triangle1Debug);
+                report.AppendLine("triangle #2 of quad " + quad + " == " + triangle2Debug);
 
                 triangle1Debug.Clear();
                 triangle2Debug.Clear();
-                }
+
             }
         }
 
-        Debug.Log(debugString.ToString());
+        Debug.Log(report.ToString());
 #else
                 }
             }
         }
 #endif
-    
-        generator._meshDefinition = definition;
 
-        generator.CreateMesh();
     }
 }
 
