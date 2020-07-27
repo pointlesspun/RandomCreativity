@@ -40,16 +40,10 @@ public class MeshGenerator : MonoBehaviour
     {
         // Need a delay call because of Unity-implementation reasons 
 #if UNITY_EDITOR
-        EditorApplication.delayCall += () =>
+        EditorApplication.delayCall += UpdateOrCreateMesh;
+#else
+        UpdateOrCreateMesh();
 #endif
-        {
-
-            // if the user defined a mesh, update or create it 
-            if (_meshDefinition != null && _meshDefinition.IsValid())
-            {
-                CreateMesh();
-            }
-        };
     }
 
     /// <summary>
@@ -134,23 +128,32 @@ public class MeshGenerator : MonoBehaviour
     {
         // Need a delay call because of Unity-implementation reasons 
 #if UNITY_EDITOR
-        EditorApplication.delayCall += () =>
+        EditorApplication.delayCall += UpdateOrCreateMesh;
 #endif
-        {
-            // if the user defined a mesh, update or create it 
-            if (_meshDefinition != null && _meshDefinition.IsValid())
-            {
-                if (_meshFilter == null || _meshRenderer == null)
-                {
-                    CreateMesh();
-                }
-                else
-                {
-                    UpdateMesh();
-                }
-            }
-        };
     }
+
+    public void OnDisable()
+    {
+#if UNITY_EDITOR
+        EditorApplication.delayCall -= UpdateOrCreateMesh;
+#endif
+    }
+
+    private void UpdateOrCreateMesh()
+    {
+        // if the user defined a mesh, update or create it 
+        if (_meshDefinition != null && _meshDefinition.IsValid())
+        {
+            if (_meshFilter == null || _meshRenderer == null)
+            {
+                CreateMesh();
+            }
+            else
+            {
+                UpdateMesh();
+            }
+        }
+    }    
 
     private void UpdateMaterial(MeshRenderer meshRenderer, Material meshMaterial, Color meshColor)
     {

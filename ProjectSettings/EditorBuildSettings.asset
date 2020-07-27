@@ -5,7 +5,13 @@ EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Scenes:
-  - enabled: 1
+  - enabled: 0
+    path: Assets/Scenes/ReproScene_1.unity
+    guid: ba15ab25c4b2cba4db5f59008cf820d3
+  - enabled: 0
     path: Assets/Scenes/1-SimpleTriangle.unity
     guid: babdabdac7e291b4795c2fda8b83097e
+  - enabled: 1
+    path: Assets/Scenes/2-MeshSheet.unity
+    guid: 5bad963209b72274f92fe3214c8bb836
   m_configObjects: {}
