@@ -12,6 +12,17 @@ public class MeshDefinition
     public Vector2[] _uv;
     public int[] _triangles;
 
+    public MeshDefinition()
+    {
+    }
+
+    public MeshDefinition(int vertexCount, int triangleCount)
+    {
+        _triangles = new int[triangleCount];
+        _vertices = new Vector3[vertexCount];
+        _uv = new Vector2[vertexCount];
+    }
+
     public bool IsValid() => 
         _vertices != null && _triangles != null && _uv != null &&
         _vertices.Length >= 3 && 
