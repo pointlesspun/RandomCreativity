@@ -77,6 +77,15 @@ The end result is a sheet stretching as long and far as the eye can see as it is
 
 The [demo can be found here](Html/MeshSheet/index.html).
 
-Another interesting finding, which is completely unrelated, 
+Another interesting finding, which is completely unrelated, is the use of GameObjects in Unity in relation to their == and != operators. The information was found after running into a strange warning with a null coalescing operator. Apparently Unity has implemented some overrides for reasons explained in [this blog](https://blogs.unity3d.com/2014/05/16/custom-operator-should-we-keep-it/).
 
-https://blogs.unity3d.com/2014/05/16/custom-operator-should-we-keep-it/
+
+## Scope Creep
+
+Next time the choice is to either start manipulating the quads or add some height to the map (ie a voxel map like approach)
+
+## Additional Credits
+
+The effort to write a camera control from scratch was a little bit too much, so I used the code from [Ashley Davis](https://gist.github.com/ashleydavis/f025c03a9221bc840a2b).
+
+The font used for the title is called 'Caviar Dreams' is credited to [Lauren Thompson](http://www.nymfont.com/).
