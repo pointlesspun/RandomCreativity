@@ -8,6 +8,8 @@ using UnityEngine;
 /// </summary>
 public class MeshCubeGenerator : MonoBehaviour
 {
+    public const int verticesPerCube = 6 * 4;
+
     /// <summary>
     /// Who would have known the number of vertices in a triangle is three...
     /// </summary>
@@ -34,8 +36,6 @@ public class MeshCubeGenerator : MonoBehaviour
     public Vector3 _offset = Vector3.zero;
 
     private MeshGenerator _generator;
-
-    private StringBuilder _debugReport = new StringBuilder();
 
     public void Start()
     {
@@ -66,21 +66,23 @@ public class MeshCubeGenerator : MonoBehaviour
 
     private static void CreateCubes(int width, int height, int depth, Vector3 offset, MeshGenerator generator)
     {
-        if ((width + 1) * (height + 1) * (depth +1) > UInt16.MaxValue)
+        var vertexCount = width * height * depth * verticesPerCube;
+
+        if (vertexCount > UInt16.MaxValue)
         {
             // https://forum.unity.com/threads/65535-vertices-limit.294585/
             // and https://docs.unity3d.com/ScriptReference/Mesh-indexFormat.html
             Debug.LogWarning("Vertices exceed the Unity maximum, you may experience issues with rendering...");
         }
 
-        var vertCount = (width + 1) * (height + 1) * (depth+1);
-        var triangleCount = width * height * depth * 2 * 3 * 6;
-        var definition = new MeshDefinition(vertCount, triangleCount);
+        var triangleCount = width * height * depth * 6 * 6;
+        var definition = new MeshDefinition(vertexCount, triangleCount);
 
         CreateVertices(definition, width, height, depth, offset);
         CreateTriangles(definition, new Vector3Int(width, height, depth));
 
         generator._meshDefinition = definition;
+
 
         generator.CreateMesh();
     }
@@ -89,30 +91,88 @@ public class MeshCubeGenerator : MonoBehaviour
     {
         var uvs = new Vector2[]
         {
-            new Vector2(0, 0.5f),
-            new Vector2(0.25f, 0.5f),
-            new Vector2(0.0f, 0.75f),
+            // bottom
+            new Vector2(0, 0.75f),
             new Vector2(0.25f, 0.75f),
+            new Vector2(0.0f, 1f),
+            new Vector2(0.25f, 1f),
+            
+            // back
+            new Vector2(0.5f, 1f),
+            new Vector2(0.25f, 1f),
+            new Vector2(0.5f, 0.75f),
+            new Vector2(0.25f, 0.75f),
+
+            // right
+            new Vector2(0.75f, 0.75f),
+            new Vector2(0.75f, 1f),
+            new Vector2(0.5f, 0.75f),
+            new Vector2(0.5f, 1f),
+
+            // front
             new Vector2(0.0f, 0.5f),
             new Vector2(0.25f, 0.5f),
             new Vector2(0.0f, 0.75f),
             new Vector2(0.25f, 0.75f),
+
+            // left
+            new Vector2(0.5f, 0.5f),
+            new Vector2(0.5f, 0.75f),
+            new Vector2(0.25f, 0.5f),
+            new Vector2(0.25f, 0.75f),
+
+            // top
+            new Vector2(0.5f, 0.5f),
+            new Vector2(0.75f, 0.5f),
+            new Vector2(0.5f, 0.75f),
+            new Vector2(0.75f, 0.75f),
         };
 
         var uvIndex = 0;
 
-        for (int z = 0; z <= depth; z++)
+        var cubeSides = new Vector3[][]
         {
-            for (int y = 0; y <= height; y++)
+            // bottom
+            new Vector3[] { new Vector3(0,0,1), new Vector3(1, 0, 1), new Vector3(0, 0, 0), new Vector3(1, 0, 0)},
+
+            // back
+            new Vector3[] { new Vector3(0,1,1), new Vector3(1, 1, 1), new Vector3(0, 0, 1), new Vector3(1, 0, 1)},
+
+            // right
+            new Vector3[] { new Vector3(1,0,1), new Vector3(1, 1, 1), new Vector3(1, 0, 0), new Vector3(1, 1, 0)},
+
+            // front
+           new Vector3[] { new Vector3(0,0,0), new Vector3(1, 0, 0), new Vector3(0, 1, 0), new Vector3(1, 1, 0) },
+
+            // left
+           new Vector3[] { new Vector3(0,0,0), new Vector3(0, 1, 0), new Vector3(0, 0, 1), new Vector3(0, 1, 1) },
+
+            // top
+           new Vector3[] { new Vector3(0,1,0), new Vector3(1, 1, 0), new Vector3(0, 1, 1), new Vector3(1, 1, 1) },
+
+        };
+
+        for (int z = 0; z < depth; z++)
+        {
+            for (int y = 0; y < height; y++)
             {
-                for (int x = 0; x <= width; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    var index = x + y * (width + 1) + z *((width+1) * (height+1));
+                    var positionOffset = new Vector3(x, y, z);
 
-                    definition._vertices[index] = new Vector3(x, y, z) + offset;
-                    definition._uv[index] = uvs[uvIndex];
+                    var baseIndex = (x + (y * width) +  (z * width * height)) * verticesPerCube;
 
-                    uvIndex = (uvIndex + 1) % uvs.Length;
+                    foreach ( var side in cubeSides)
+                    {
+                        for (var i = 0; i < side.Length; i++)
+                        {
+                            definition._vertices[baseIndex] = positionOffset + side[i] + offset;
+                            definition._uv[baseIndex] = uvs[uvIndex];
+
+                            uvIndex = (uvIndex + 1) % uvs.Length;
+                            baseIndex++;
+                        }
+                    }
                 }
             }
         }
@@ -120,52 +180,7 @@ public class MeshCubeGenerator : MonoBehaviour
 
     private static void CreateTriangles(MeshDefinition definition, in Vector3Int dimensions)
     {
-        var w1  = dimensions.x + 1;
-        var h1  = dimensions.y + 1;
-        var wh1 = w1 * h1;
-
-        // relative vertex points
-        var v1 = 0;
-        var v2 = 1;
-        var v3 = wh1;
-        var v4 = wh1 + 1;
-        var v5 = w1;
-        var v6 = 1 + w1;
-        var v7 = w1 + wh1;
-        var v8 = 1 + w1 + wh1;
-        
-        var cubeTriangles = new int[][] {
-            
-            // bottom 1
-            new int[] { v2, v4, v1 },
-            // bottom 2
-            new int[] { v4, v3, v1 },
-            
-            // backwards
-            new int[] { v4, v8, v3 },
-            // bottom 2
-            new int[] { v8, v7, v3},
-            
-            // right
-            new int[] { v6, v4, v2 },
-            // bottom 2
-            new int[] { v6, v8, v4},
-            
-            // front 1
-            new int[] { v1, v6, v2 },
-            // front 2
-            new int[] { v1, v5, v6 },
-           
-            // left 1
-            new int[] { v3, v5, v1 },
-            // left 2
-             new int[] { v3, v7, v5 },
-                         
-            // top 1
-            new int[] { v5, v8, v6 },
-            // top 2
-            new int[] { v5, v7, v8 },
-        };
+        var cubeTriangles = new int[] { 0, 3, 1, 0, 2, 3 };
 
         var cubeLocation = Vector3Int.zero;        
 
@@ -188,25 +203,23 @@ public class MeshCubeGenerator : MonoBehaviour
     private static void CreateQuad(MeshDefinition definition, 
                                     in Vector3Int cubeLocation, 
                                     in Vector3Int dimensions, 
-                                    int[][] cubeTriangles)
+                                    int[] cubeTriangles)
     {
-        var triangleOffset = 6 * 6 *
-                            (cubeLocation.x
+        var cubeIndex = (cubeLocation.x
                              + cubeLocation.y * dimensions.x
                              + cubeLocation.z * dimensions.x * dimensions.y);
 
-        for (int i = 0; i < cubeTriangles.Length; i++)
+        var triangleIndex = 6 * 6 * cubeIndex;
+        var vertexIndex = 4 * 6 * cubeIndex;
+
+        // create each side of the cube
+        for (int j = 0; j < 6; j++)
         {
-            var index = triangleOffset + i * triangleLength;
-            var triangleIndices = cubeTriangles[i];
 
-            for (int j = 0; j < triangleIndices.Length; j++)
+            for (int i = 0; i < cubeTriangles.Length; i++)
             {
-                var vertexIndex = cubeLocation.x
-                                + (cubeLocation.y * (dimensions.x + 1))
-                                + (cubeLocation.z * (dimensions.x + 1) * (dimensions.y + 1));
-
-                definition._triangles[index+j] = vertexIndex + triangleIndices[j];
+                definition._triangles[triangleIndex] = vertexIndex + 4 * j + cubeTriangles[i];
+                triangleIndex++;
             }
         }
     }
