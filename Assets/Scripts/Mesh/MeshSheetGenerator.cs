@@ -103,7 +103,6 @@ public class MeshSheetGenerator : MonoBehaviour
         }
     }
 
-
     private static void CreateTriangles(MeshDefinition definition, int width, int height )
     {
         var quadPoints1 = new int[] { 0, width + 2, 1 };
