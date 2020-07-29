@@ -17,3 +17,4 @@ The following logs capture this effort:
 1. [First steps](Doc/001-first-steps.md), drawing a simple triangle in Unity.
 2. [Live updating the polygons](Doc/002-updating-the-editor.md), how to get the triangles to show up in the editor view of Unity ([Demo](Doc/Html/TwoTriangles/index.html)). 
 3. [Creating mesh sheets](Doc/003-mesh-sheets.md), creating sheets of meshes using the mesh generator behavior ([Demo](Doc/Html/MeshSheet/index.html)). 
+4. [Creating cube meshes Demo](Doc/Html/CubeMeshes/index.html)
