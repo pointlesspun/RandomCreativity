@@ -4,7 +4,8 @@
 Creating Cubes
 ==============
 
-### [Demo](Html/CubeMeshes/index.html)
+### [[Demo](Html/CubeMeshes/index.html)] [[Top](../readme.md)] [[Previous](003-mesh-sheets.md)]
+
 
 The natural progression after creating a sheet, is to create cubes. The [MeshCubeGenerator](https://github.com/pointlesspun/Randomized-Creativity/blob/master/Assets/Scripts/Mesh/MeshCubeGenerator.cs) (MCB) does just that. The basic steps in the MCB are:
 
@@ -41,7 +42,8 @@ Possible next steps:
 * Improve performance.
 * Deform the matrix using forces. 
 
----
-
 ## Credits
 Top cover By Pablo Picasso - [1], PD-US, https://en.wikipedia.org/w/index.php?curid=38779722
+
+---
+### [[Demo](Html/CubeMeshes/index.html)] [[Top](../readme.md)] [[Previous](003-mesh-sheets.md)]

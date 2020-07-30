@@ -4,9 +4,9 @@
 Mesh Sheets
 ===========
 
-### [Demo](Html/MeshSheet/index.html)
+### [[Demo](Html/MeshSheet/index.html)] [[Top](../readme.md)] [[Previous](002-updating-the-editor.md)][[Next](004-cubes.md)]
 
-Now that it's possible to draw a single triangle, let's see how easily it scales to _more_ triangles. 
+#ow that it's possible to draw a single triangle, let's see how easily it scales to _more_ triangles. 
 
 The goal is to create a simple mesh sheet of x by y quads. This turned out to be trivial. Just set up a MeshDefinition the "right" way hand it over to the MeshGenerator and Bob is someone's uncle. The "right" way in this case means:
 
@@ -86,10 +86,11 @@ Another interesting finding, which is completely unrelated, is the use of GameOb
 
 Next time the choice is to either start manipulating the quads or add some height to the map (ie a voxel map like approach)
 
---- 
-
 ### Credits
 
 The effort to write a camera control from scratch was a little bit too much, so I used the code from [Ashley Davis](https://gist.github.com/ashleydavis/f025c03a9221bc840a2b).
 
 The font used for the title is called 'Caviar Dreams' is credited to [Lauren Thompson](http://www.nymfont.com/).
+
+---
+### [[Demo](Html/MeshSheet/index.html)] [[Top](../readme.md)] [[Previous](002-updating-the-editor.md)][[Next](004-cubes.md)]

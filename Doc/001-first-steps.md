@@ -4,6 +4,7 @@
 First steps 
 =============================
 
+### [[Top](../readme.md)] [[Next](002-updating-the-editor.md)]
 
 The first goal is to simply drawing a grid. More specifically can we vary the shape of the grid tiles in a meaningful way like in [renowned explorers](https://www.renownedexplorers.com/) or [Townscaper](https://store.steampowered.com/app/1291340/Townscaper), or [this science paper](http://peterwonka.net/Publications/pdfs/2014.TOG.Chihan.QuadExploration.final.pdf), and [a nice demo](https://twitter.com/osksta/status/1147881669350891521?lang=en).
 
@@ -61,3 +62,6 @@ There are a couple of shortcomings with this approach, which could be added:
 * No editor interactivity, you can't see the mesh as you're changing it in the editor
 * The center of the mesh is defined by the definition. I'm not sure if that's ok or if an anchor point should be defined... I'm inclined to say the former, ie it's up to the user to fix the input data, BUT it would be nice and more user friendly if this was adjusted for the user. For now there's no intention to address this.
 * Meshes are not doublesided. Same arguments as in the previous point apply.
+
+---
+### [[Top](../readme.md)] [[Next](002-updating-the-editor.md)]
