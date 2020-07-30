@@ -19,9 +19,9 @@ public class MeshGenerator : MonoBehaviour
     public Material _meshMaterial;
 
     /// <summary>
-    /// Color applied to the mesh
+    /// Name of the texture to override. The assumption is one material (the default one), one texture. Adjust/expand as needed.
     /// </summary>
-    public Color _meshColor = Color.yellow;
+    public string _materialTextureName = "_MainTex";
 
     /// <summary>
     /// Resolved or generated mesh filter
@@ -68,7 +68,12 @@ public class MeshGenerator : MonoBehaviour
         if (_meshMaterial != null)
         {
             var polyMaterial = new Material(_meshMaterial);
-            polyMaterial.color = _meshColor;
+            polyMaterial.color = _meshDefinition._color;
+
+            if (_meshDefinition._texture != null)
+            {
+                polyMaterial.SetTexture(_materialTextureName, _meshDefinition._texture);
+            }
 
             // check if in editor mode or in game mode, we need different materials (and meshes) otherwise we get warnings
             // from the editor
@@ -111,11 +116,11 @@ public class MeshGenerator : MonoBehaviour
         // from the editor
         if (Application.isPlaying)
         {
-            UpdateMaterial(_meshRenderer, _meshMaterial, _meshColor);
+            UpdateMaterial(_meshRenderer, _meshMaterial, _meshDefinition._color, _meshDefinition._texture);
         }
         else
         {
-           UpdateSharedMaterial(_meshRenderer, _meshMaterial, _meshColor);
+           UpdateSharedMaterial(_meshRenderer, _meshMaterial, _meshDefinition._color, _meshDefinition._texture);
         }
 
         UpdateMeshDefinition(mesh, _meshDefinition);
@@ -155,13 +160,19 @@ public class MeshGenerator : MonoBehaviour
         }
     }    
 
-    private void UpdateMaterial(MeshRenderer meshRenderer, Material meshMaterial, Color meshColor)
+    private void UpdateMaterial(MeshRenderer meshRenderer, Material meshMaterial, Color meshColor, Texture meshTexture)
     {
         // is mesh material different from the current material and is it defined? 
         if (meshRenderer.material != meshMaterial && meshMaterial != null)
         {
             var polyMaterial = new Material(meshMaterial);
             polyMaterial.color = meshColor;
+
+            if (meshTexture != null)
+            {
+                polyMaterial.SetTexture(_materialTextureName, meshTexture);
+            }    
+
             meshRenderer.material = polyMaterial;
         }
         // material defined and mesh material is different
@@ -175,13 +186,19 @@ public class MeshGenerator : MonoBehaviour
         }
     }
 
-    private void UpdateSharedMaterial(MeshRenderer meshRenderer, Material meshMaterial, Color meshColor)
+    private void UpdateSharedMaterial(MeshRenderer meshRenderer, Material meshMaterial, Color meshColor, Texture meshTexture)
     {
         // is mesh material different from the current material and is it defined? 
         if (meshRenderer.sharedMaterial != meshMaterial && meshMaterial != null)
         {
             var polyMaterial = new Material(meshMaterial);
             polyMaterial.color = meshColor;
+
+            if (meshTexture != null)
+            {
+                polyMaterial.SetTexture(0, meshTexture);
+            }
+
             meshRenderer.sharedMaterial = polyMaterial;
         }
         // material defined and mesh material is different

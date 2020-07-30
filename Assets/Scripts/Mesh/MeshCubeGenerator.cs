@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using UnityEngine;
 
 /// <summary>
@@ -31,6 +30,16 @@ public class MeshCubeGenerator : MonoBehaviour
     public int _depth;
 
     /// <summary>
+    /// Color multiplier applied to the mesh
+    /// </summary>
+    public Color _color = Color.white;
+
+    /// <summary>
+    /// Optional texture, if none is defined the Material's default texture will be used
+    /// </summary>
+    public Texture _meshTexture;
+
+    /// <summary>
     /// Center point of the sheet
     /// </summary>
     public Vector3 _offset = Vector3.zero;
@@ -50,6 +59,13 @@ public class MeshCubeGenerator : MonoBehaviour
         TryCreateCubes(_width, _height, _depth, _offset);
     }
 
+    /// <summary>
+    /// Try create a matrix of cubes of width x height x depth size at the given offset
+    /// </summary>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <param name="depth"></param>
+    /// <param name="offset"></param>
     public void TryCreateCubes(int width, int height, int depth, Vector3 offset)
     {
         _generator = GetComponent<MeshGenerator>();
@@ -60,11 +76,15 @@ public class MeshCubeGenerator : MonoBehaviour
             _height = height;
             _offset = offset;
 
-            CreateCubes(width, height, depth, offset, _generator);
+            CreateCubes(width, height, depth, offset, _meshTexture, _color, _generator);
+        }
+        else
+        {
+            Debug.LogWarning("Cube generation does not have valid parameters, width, height and depth should be greater than 0 and the gameobject should have a MeshGenerator");
         }
     }
 
-    private static void CreateCubes(int width, int height, int depth, Vector3 offset, MeshGenerator generator)
+    private static void CreateCubes(int width, int height, int depth, Vector3 offset, Texture texture, Color color, MeshGenerator generator)
     {
         var vertexCount = width * height * depth * verticesPerCube;
 
@@ -76,60 +96,73 @@ public class MeshCubeGenerator : MonoBehaviour
         }
 
         var triangleCount = width * height * depth * 6 * 6;
-        var definition = new MeshDefinition(vertexCount, triangleCount);
+        var definition = new MeshDefinition(vertexCount, triangleCount, texture, color);
 
-        CreateVertices(definition, width, height, depth, offset);
+        CreateVerticesAndUvs(definition, width, height, depth, offset);
         CreateTriangles(definition, new Vector3Int(width, height, depth));
 
         generator._meshDefinition = definition;
 
-
         generator.CreateMesh();
     }
 
-    private static void CreateVertices(MeshDefinition definition, int width, int height, int depth, in Vector3 offset)
+    /// <summary>
+    /// Create the vertices and uvs making up a cube
+    /// </summary>
+    /// <param name="definition"></param>
+    /// <param name="width"></param>
+    /// <param name="height"></param>
+    /// <param name="depth"></param>
+    /// <param name="offset"></param>
+    private static void CreateVerticesAndUvs(MeshDefinition definition, int width, int height, int depth, in Vector3 offset)
     {
+        var yGrid = 1.0f / 1.0f;
+        var xGrid = 1.0f / 6.0f;
+
+        // A number of assumptions are made here on how the uvs are mapped, change these values as needed depending on the 
+        // given uv map
         var uvs = new Vector2[]
         {
             // bottom
-            new Vector2(0, 0.75f),
-            new Vector2(0.25f, 0.75f),
-            new Vector2(0.0f, 1f),
-            new Vector2(0.25f, 1f),
+            new Vector2(xGrid * 0, yGrid * 0),
+            new Vector2(xGrid * 1, yGrid * 0),
+            new Vector2(xGrid * 0, yGrid * 1),
+            new Vector2(xGrid * 1, yGrid * 1),
             
             // back
-            new Vector2(0.5f, 1f),
-            new Vector2(0.25f, 1f),
-            new Vector2(0.5f, 0.75f),
-            new Vector2(0.25f, 0.75f),
+            new Vector2(xGrid * 2, yGrid * 1),
+            new Vector2(xGrid * 1, yGrid * 1),
+            new Vector2(xGrid * 2, yGrid * 0),
+            new Vector2(xGrid * 1, yGrid * 0),
 
             // right
-            new Vector2(0.75f, 0.75f),
-            new Vector2(0.75f, 1f),
-            new Vector2(0.5f, 0.75f),
-            new Vector2(0.5f, 1f),
+            new Vector2(xGrid * 3, yGrid * 0),
+            new Vector2(xGrid * 3, yGrid * 1),
+            new Vector2(xGrid * 2, yGrid * 0),
+            new Vector2(xGrid * 2, yGrid * 1),
 
             // front
-            new Vector2(0.0f, 0.5f),
-            new Vector2(0.25f, 0.5f),
-            new Vector2(0.0f, 0.75f),
-            new Vector2(0.25f, 0.75f),
+            new Vector2(xGrid * 3, yGrid * 0),
+            new Vector2(xGrid * 4, yGrid * 0),
+            new Vector2(xGrid * 3, yGrid * 1),
+            new Vector2(xGrid * 4, yGrid * 1),
 
             // left
-            new Vector2(0.5f, 0.5f),
-            new Vector2(0.5f, 0.75f),
-            new Vector2(0.25f, 0.5f),
-            new Vector2(0.25f, 0.75f),
+            new Vector2(xGrid * 5, yGrid * 0),
+            new Vector2(xGrid * 5, yGrid * 1),
+            new Vector2(xGrid * 4, yGrid * 0),
+            new Vector2(xGrid * 4, yGrid * 1),
 
             // top
-            new Vector2(0.5f, 0.5f),
-            new Vector2(0.75f, 0.5f),
-            new Vector2(0.5f, 0.75f),
-            new Vector2(0.75f, 0.75f),
+            new Vector2(xGrid * 5, yGrid * 0),
+            new Vector2(xGrid * 6, yGrid * 0),
+            new Vector2(xGrid * 5, yGrid * 1),
+            new Vector2(xGrid * 6, yGrid * 1),
         };
 
         var uvIndex = 0;
 
+        // relative offsets of the vertices making up a cube
         var cubeSides = new Vector3[][]
         {
             // bottom
@@ -149,9 +182,9 @@ public class MeshCubeGenerator : MonoBehaviour
 
             // top
            new Vector3[] { new Vector3(0,1,0), new Vector3(1, 1, 0), new Vector3(0, 1, 1), new Vector3(1, 1, 1) },
-
         };
 
+        // iterate over the matrix setting up all cubes
         for (int z = 0; z < depth; z++)
         {
             for (int y = 0; y < height; y++)
@@ -180,6 +213,7 @@ public class MeshCubeGenerator : MonoBehaviour
 
     private static void CreateTriangles(MeshDefinition definition, in Vector3Int dimensions)
     {
+        // relative offset of the vertex indices
         var cubeTriangles = new int[] { 0, 3, 1, 0, 2, 3 };
 
         var cubeLocation = Vector3Int.zero;        
@@ -194,20 +228,27 @@ public class MeshCubeGenerator : MonoBehaviour
                     cubeLocation.y = y;
                     cubeLocation.z = z;
 
-                    CreateQuad(definition, cubeLocation, dimensions, cubeTriangles);
+                    CreateCube(definition, cubeLocation, dimensions, cubeTriangles);
                 }
             }
         }
     }
 
-    private static void CreateQuad(MeshDefinition definition, 
+    /// <summary>
+    /// Create a cube into the given mesh definition
+    /// </summary>
+    /// <param name="definition">The definition to write to</param>
+    /// <param name="cubeLocation">the x, y, z location of the cube</param>
+    /// <param name="matrixDimensions">the total dimensions of mesh definition matrix</param>
+    /// <param name="cubeTriangles">relative offset of the cube triangles</param>
+    private static void CreateCube(MeshDefinition definition, 
                                     in Vector3Int cubeLocation, 
-                                    in Vector3Int dimensions, 
+                                    in Vector3Int matrixDimensions, 
                                     int[] cubeTriangles)
     {
         var cubeIndex = (cubeLocation.x
-                             + cubeLocation.y * dimensions.x
-                             + cubeLocation.z * dimensions.x * dimensions.y);
+                             + cubeLocation.y * matrixDimensions.x
+                             + cubeLocation.z * matrixDimensions.x * matrixDimensions.y);
 
         var triangleIndex = 6 * 6 * cubeIndex;
         var vertexIndex = 4 * 6 * cubeIndex;
@@ -215,7 +256,6 @@ public class MeshCubeGenerator : MonoBehaviour
         // create each side of the cube
         for (int j = 0; j < 6; j++)
         {
-
             for (int i = 0; i < cubeTriangles.Length; i++)
             {
                 definition._triangles[triangleIndex] = vertexIndex + 4 * j + cubeTriangles[i];

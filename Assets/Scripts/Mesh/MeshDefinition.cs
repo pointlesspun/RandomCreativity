@@ -12,6 +12,9 @@ public class MeshDefinition
     public Vector2[] _uv;
     public int[] _triangles;
 
+    public Texture _texture;
+    public Color _color = Color.white;
+
     public MeshDefinition()
     {
     }
@@ -21,6 +24,15 @@ public class MeshDefinition
         _triangles = new int[triangleCount];
         _vertices = new Vector3[vertexCount];
         _uv = new Vector2[vertexCount];
+    }
+
+    public MeshDefinition(int vertexCount, int triangleCount, Texture texture, Color color)
+    {
+        _triangles = new int[triangleCount];
+        _vertices = new Vector3[vertexCount];
+        _uv = new Vector2[vertexCount];
+        _texture = texture;
+        _color = color;
     }
 
     public bool IsValid() => 
