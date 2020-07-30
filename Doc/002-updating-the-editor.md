@@ -1,5 +1,5 @@
 
-<img src="images/mark-ashkenazi-butterfly.png" style="object-fit:cover" width="100%" height="256px"/>
+<img src="Images/mark-ashkenazi-butterfly.png" style="object-fit:cover" width="100%" height="256px"/>
 
 
 Updating the Editor 
