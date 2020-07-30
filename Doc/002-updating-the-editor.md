@@ -1,6 +1,11 @@
+
+<img src="images/mark-ashkenazi-butterfly.png" style="object-fit:cover" width="100%" height="256px"/>
+
+
 Updating the Editor 
 =====================================
-### (24-25 July 2020)
+
+### [Demo](Doc/Html/TwoTriangles/index.html)
 
 To get the editor to show and update the mesh as the user is editing the mesh is a matter of following the editor's wishes. It might not always be intuitive but luckily [stackoverflow](https://www.stackoverflow.com) and [unity's own forums](https://forum.unity.com/) generally provide the majority of the answers. 
 
@@ -250,3 +255,9 @@ Next the goal is to create a larger mesh with more triangles...
 ### Future references
 
 [Marking meshes as dynamic](https://docs.unity3d.com/ScriptReference/Mesh.MarkDynamic.html) ... 
+
+--- 
+
+### Credits
+
+[Butterfly - Mark Ashkenazi](https://mark-ashkenazi.pixels.com/featured/butterfly-world-map-mark-ashkenazi.html)

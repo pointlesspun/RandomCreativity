@@ -1,8 +1,8 @@
 
+<img src="https://upload.wikimedia.org/wikipedia/commons/9/9b/First_Steps_%28Millet%29.jpg" style="object-fit:cover" width="100%" height="256px"/>
 
 First steps 
 =============================
-### 23-24 July 2020
 
 
 The first goal is to simply drawing a grid. More specifically can we vary the shape of the grid tiles in a meaningful way like in [renowned explorers](https://www.renownedexplorers.com/) or [Townscaper](https://store.steampowered.com/app/1291340/Townscaper), or [this science paper](http://peterwonka.net/Publications/pdfs/2014.TOG.Chihan.QuadExploration.final.pdf), and [a nice demo](https://twitter.com/osksta/status/1147881669350891521?lang=en).

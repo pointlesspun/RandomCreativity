@@ -6,13 +6,13 @@ Creating Cubes
 
 ### [Demo](Html/CubeMeshes/index.html)
 
-The natural progression after creating a sheet, is to create cubes. The MeshCubeGenerator (MCB) does just that. The basic steps in the MCB is:
+The natural progression after creating a sheet, is to create cubes. The [MeshCubeGenerator](https://github.com/pointlesspun/Randomized-Creativity/blob/master/Assets/Scripts/Mesh/MeshCubeGenerator.cs) (MCB) does just that. The basic steps in the MCB are:
 
-* Define a MeshDefinition
-* Allocate space for the vertices, 
-* Setup the vertices and uvs in the MeshDefinition
-* Define the triangles in the MeshDefinition
-* Invoke the MeshGenerator with the MeshDefinition
+* Create a [MeshDefinition](https://github.com/pointlesspun/Randomized-Creativity/blob/master/Assets/Scripts/Mesh/MeshDefinition.cs).
+* Allocate space for the [vertices](https://github.com/pointlesspun/Randomized-Creativity/blob/6b17149f3ae9968762d7980beb166b5898d08c06/Assets/Scripts/Mesh/MeshCubeGenerator.cs#L99), 
+* Setup the [vertices and uvs in the MeshDefinition](https://github.com/pointlesspun/Randomized-Creativity/blob/6b17149f3ae9968762d7980beb166b5898d08c06/Assets/Scripts/Mesh/MeshCubeGenerator.cs#L117-L212)
+* Define the [triangles in the MeshDefinition](https://github.com/pointlesspun/Randomized-Creativity/blob/6b17149f3ae9968762d7980beb166b5898d08c06/Assets/Scripts/Mesh/MeshCubeGenerator.cs#L214-L235)
+* [Invoke the MeshGenerator with the MeshDefinition](https://github.com/pointlesspun/Randomized-Creativity/blob/6b17149f3ae9968762d7980beb166b5898d08c06/Assets/Scripts/Mesh/MeshCubeGenerator.cs#L104-L106)
 
 First of all, the code makes several (hard-coded) assumptions about the setup of the vertices, uvs and triangles. For the scope of this section this is intentional
 but can changed easily. 
@@ -26,6 +26,12 @@ The MeshDefinition now contains a color and texture which can be assigned to the
 The implementation is pretty inefficient, all sides of all cubes are being drawn, even though they are not always visible.   
 
 Apart from the number mangling of the vertices and triangles, the code should be pretty straightforward.
+
+The end result should look something like this:
+
+<center>
+    <img src="Images/Cubes.png" style="max-width:80%; height:auto;"/>
+</center>
 
 ## Scope Creep
 
